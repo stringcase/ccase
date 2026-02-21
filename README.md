@@ -191,6 +191,7 @@ In `ccase`, the delimeter can be specified with `--delimeter` or whatever delime
 
 ## 0.5.0
 
-- Updated `convert_case` dependency to latest, add `convert_case_extras`
+- Updated `convert_case` dependency to 0.11 (and add `convert_case_extras` as a result)
 - Removed case aliases
 - Case and patterns must now be specified in all lowercase
+- Improve piped input handling

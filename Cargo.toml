@@ -19,7 +19,6 @@ path = "src/main.rs"
 convert_case = "0.11"
 convert_case_extras = { version = "0.2", features = ["random"] }
 clap = { version = "^4.0", features = ["cargo", "color", "wrap_help", "derive"] }
-atty = "0.2.14"
 
 [dev-dependencies]
 predicates = "2.1.1"

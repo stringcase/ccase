@@ -1,62 +1,37 @@
 use ccase::{CaseOption, PatternOption};
 use clap::ArgMatches;
 use convert_case::{Boundary, Converter};
-use std::env;
-use std::io::{self, Read};
+use std::io::{self, IsTerminal, Read};
 
 fn main() {
-    let mut app = ccase::build_app();
+    let app = ccase::build_app();
+    let matches = app.get_matches();
 
-    let missing_error = app.error(
-        clap::error::ErrorKind::MissingRequiredArgument,
-        "The following required arguments were not provided:\n  \
-            \x1b[32m<input>...\x1b[m",
-    );
-
-    let args = get_args_with_stdin();
-
-    let matches = app.get_matches_from(args);
-
-    let inputs = match matches.get_many::<String>("input") {
+    let inputs: Vec<String> = match matches.get_many::<String>("input") {
+        Some(inputs) => inputs.cloned().collect(),
         None => {
-            if atty::isnt(atty::Stream::Stdin) {
-                Default::default()
+            // No command-line inputs - try stdin if not a terminal
+            if !io::stdin().is_terminal() {
+                read_stdin_lines()
             } else {
-                missing_error.exit();
+                // No input and stdin is terminal - show error
+                eprintln!("error: missing required argument: <input>...");
+                std::process::exit(1);
             }
         }
-        Some(inputs) => inputs,
     };
 
-    /*
-    inputs.for_each(|input| {
-        println!("{:?}", input);
-        convert(&matches, input)
-    });
-    */
-    inputs.for_each(|input| convert(&matches, input));
+    for input in &inputs {
+        convert(&matches, input);
+    }
 }
 
-fn get_args_with_stdin() -> Vec<String> {
-    let mut args: Vec<String> = env::args_os().map(|x| x.into_string().unwrap()).collect();
-
-    if atty::isnt(atty::Stream::Stdin) {
-        let stdin = io::stdin();
-        let mut handle = stdin.lock();
-
-        let mut v = Vec::new();
-        handle.read_to_end(&mut v).unwrap();
-
-        let s = String::from_utf8(v).unwrap();
-
-        if !s.is_empty() {
-            for word in s.lines() {
-                args.push(word.trim_end().to_string());
-            }
-        }
-    }
-
-    args
+fn read_stdin_lines() -> Vec<String> {
+    let stdin = io::stdin();
+    let mut handle = stdin.lock();
+    let mut buf = String::new();
+    handle.read_to_string(&mut buf).unwrap();
+    buf.lines().map(|s| s.trim_end().to_string()).collect()
 }
 
 fn convert(matches: &ArgMatches, input: &String) {
@@ -163,12 +138,13 @@ mod test {
             .stdout("My.var.name\n");
     }
 
-    #[ignore] // atty is tricked in test, look at ccase -t snake manually
+    #[ignore] // Can't test TTY behavior - in test env stdin is always piped, not TTY
     #[test]
-    fn input_required() {
+    fn input_required_tty() {
+        // When stdin is a TTY and no input provided, should show error.
+        // This can only be verified manually: `ccase -t snake`
         ccase(&["-t", "snake"])
             .failure()
-            .stderr(contains("following required arguments"))
             .stderr(contains("input"));
     }
 
@@ -267,6 +243,17 @@ mod test {
             pipe_ccase("myVarName\nanotherMultiWordToken\n", &["-t", "pascal"])
                 .success()
                 .stdout("MyVarName\nAnotherMultiWordToken\n");
+        }
+
+        #[test]
+        fn cli_input_ignores_stdin() {
+            // When CLI input is provided, stdin should be ignored.
+            // This fixes the bug where ccase blocks in a while-read loop:
+            //   printf "a\nb\n" | while read word; do ccase -t upper "$word"; done
+            // See: https://github.com/rutrum/ccase/issues/3
+            pipe_ccase("ignored_stdin_content", &["-t", "upper", "hello"])
+                .success()
+                .stdout("HELLO\n");
         }
     }
 }

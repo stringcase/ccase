@@ -24,7 +24,7 @@ fn usage() -> StyledStr {
 fn after_long_help() -> StyledStr {
     let s = format!(
         "\x1b[1;4mCase Conversion:\x1b[0m\n  \
-        Visit the code repository at https://github.com/rutrum/ccase for a full description\n  \
+        Visit the code repository at https://github.com/stringcase/ccase for a full description\n  \
         on how strings are converted using boundaries, patterns, and delimeters.\n\n\
         \x1b[1;4mCases:\x1b[0m\n\
         {}\n\
@@ -84,6 +84,7 @@ mod args {
                 "Convert the input into this case.  \
                 The input is mutated and joined using the pattern and delimiter of the case.",
             )
+            .hide_possible_values(true)
             .value_parser(EnumValueParser::<CaseOption>::new())
             .required_unless_present("pattern")
     }
@@ -98,6 +99,7 @@ mod args {
                 "Parse the input as if it were this case.  \
                 This means splitting the input based on boundaries found in that case.",
             )
+            .hide_possible_values(true)
             .value_parser(EnumValueParser::<CaseOption>::new())
     }
 
@@ -121,6 +123,7 @@ mod args {
             .long("pattern")
             .help("Pattern to transform words")
             .long_help("Transform the words after splitting the input based upon the pattern.")
+            .hide_possible_values(true)
             .conflicts_with("to")
             .value_parser(EnumValueParser::<PatternOption>::new())
     }
