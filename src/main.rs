@@ -1,5 +1,6 @@
+use ccase::{CaseOption, PatternOption};
 use clap::ArgMatches;
-use convert_case::{Boundary, Case, Converter, Pattern};
+use convert_case::{Boundary, Converter};
 use std::env;
 use std::io::{self, Read};
 
@@ -63,25 +64,25 @@ fn convert(matches: &ArgMatches, input: &String) {
 
     let mut conv = Converter::new();
 
-    if let Some(&from) = matches.get_one::<Case>("from") {
+    if let Some(&from) = matches.get_one::<CaseOption>("from") {
         // --from
-        conv = conv.from_case(from);
+        conv = conv.from_case(from.to_case());
     } else if let Some(boundary_str) = matches.get_one::<String>("boundaries") {
         // --boundaries
-        let boundaries = Boundary::list_from(boundary_str.as_str());
+        let boundaries = Boundary::defaults_from(boundary_str.as_str());
         conv = conv.set_boundaries(&boundaries);
     }
 
-    if let Some(&to) = matches.get_one::<Case>("to") {
+    if let Some(&to) = matches.get_one::<CaseOption>("to") {
         // --to
-        conv = conv.to_case(to);
-    } else if let Some(&pattern) = matches.get_one::<Pattern>("pattern") {
+        conv = conv.to_case(to.to_case());
+    } else if let Some(&pattern) = matches.get_one::<PatternOption>("pattern") {
         // --pattern
-        conv = conv.set_pattern(pattern);
+        conv = conv.set_pattern(pattern.to_pattern());
 
         if let Some(delim) = matches.get_one::<String>("delimeter") {
             // --delimeter
-            conv = conv.set_delim(delim);
+            conv = conv.set_delimiter(delim);
         }
     }
 
@@ -136,7 +137,7 @@ mod test {
         ccase(&["-p", "capital", "MY_VAR_NAME"])
             .success()
             .stdout("MyVarName\n");
-        ccase(&["-p", "Sentence", "MY_VAR_NAME"])
+        ccase(&["-p", "sentence", "MY_VAR_NAME"])
             .success()
             .stdout("Myvarname\n");
     }
@@ -177,42 +178,26 @@ mod test {
     }
 
     #[test]
-    fn case_inputs_not_lower() {
-        ccase(&["-t", "SNAKE", "myVarName"])
-            .success()
-            .stdout("my_var_name\n");
-        ccase(&["-t", "SnAkE", "myVarName"])
-            .success()
-            .stdout("my_var_name\n");
-        ccase(&["-t", "snake", "-f", "KEBab", "my-varName"])
-            .success()
-            .stdout("my_varname\n");
-        ccase(&["-t", "snake", "-f", "KEBAB", "my-varName"])
-            .success()
-            .stdout("my_varname\n");
-    }
-
-    #[test]
     fn invalid_case() {
-        ccase(&["-t", "SNEK", "myVarName"])
+        ccase(&["-t", "snek", "myVarName"])
             .failure()
-            .stderr(contains("Invalid value"))
+            .stderr(contains("isn't a valid value"))
             .stderr(contains("--to"));
-        ccase(&["-t", "snake", "-f", "SNEK", "my-varName"])
+        ccase(&["-t", "snake", "-f", "snek", "my-varName"])
             .failure()
-            .stderr(contains("Invalid value"))
+            .stderr(contains("isn't a valid value"))
             .stderr(contains("--from"));
     }
 
     #[test]
     fn invalid_pattern() {
-        ccase(&["-p", "SENT", "myVarName"])
+        ccase(&["-p", "sent", "myVarName"])
             .failure()
-            .stderr(contains("Invalid value"))
+            .stderr(contains("isn't a valid value"))
             .stderr(contains("--pattern"));
-        ccase(&["-p", "SENT", "-f", "snake", "my-varName"])
+        ccase(&["-p", "sent", "-f", "snake", "my-varName"])
             .failure()
-            .stderr(contains("Invalid value"))
+            .stderr(contains("isn't a valid value"))
             .stderr(contains("--pattern"));
     }
 
@@ -279,7 +264,7 @@ mod test {
 
         #[test]
         fn multiple_inputs() {
-            pipe_ccase("myVarName\nanotherMultiWordToken\n", &["-t", "Pascal"])
+            pipe_ccase("myVarName\nanotherMultiWordToken\n", &["-t", "pascal"])
                 .success()
                 .stdout("MyVarName\nAnotherMultiWordToken\n");
         }

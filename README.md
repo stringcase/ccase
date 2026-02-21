@@ -186,3 +186,11 @@ In `ccase`, the delimeter can be specified with `--delimeter` or whatever delime
 # Rust Library
 
 `ccase` is a command line utility built on top of a rust library `convert_case`([github](https://github.com/rutrum/convert-case), [crates.io](https://crates.io/crates/convert_case)).  This library and its documentation are the source for the list of cases, patterns, boundaries, and default many behaviors found in this command line utility.
+
+# Changlog
+
+## 0.5.0
+
+- Updated `convert_case` dependency to latest, add `convert_case_extras`
+- Removed case aliases
+- Case and patterns must now be specified in all lowercase

@@ -1,23 +1,24 @@
 [package]
 name = "ccase"
 version = "0.4.1"
-authors = ["Rutrum <dave@rutrum.net>"]
+authors = ["rutrum <dave@rutrum.net>"]
 edition = "2021"
 description = "Command line interface to convert strings into any case"
 license = "MIT"
 keywords = [ "casing", "case", "string" ]
 categories = [ "text-processing", "command-line-utilities" ]
 readme = "README.md"
-repository = "https://github.com/rutrum/ccase"
-documentation = "https://github.com/rutrum/ccase"
+repository = "https://github.com/stringcase/ccase"
+documentation = "https://github.com/stringcase/ccase"
 
 [[bin]]
 name = "ccase"
 path = "src/main.rs"
 
 [dependencies]
-convert_case = { version = "0.6", features = ["random"] }
-clap = { version = "^4.0", features = ["cargo", "color", "wrap_help"] }
+convert_case = "0.11"
+convert_case_extras = { version = "0.2", features = ["random"] }
+clap = { version = "^4.0", features = ["cargo", "color", "wrap_help", "derive"] }
 atty = "0.2.14"
 
 [dev-dependencies]

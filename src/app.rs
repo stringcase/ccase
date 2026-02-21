@@ -1,6 +1,6 @@
-use crate::{case_value_parser, pattern_value_parser, CaseExtension, PatternExtension};
-use clap::{builder::StyledStr, crate_version, Arg, ArgAction, Command};
-use convert_case::{Case, Casing};
+use crate::{CaseOption, PatternOption};
+use clap::builder::{EnumValueParser, StyledStr};
+use clap::{crate_version, Arg, ArgAction, Command, ValueEnum};
 
 pub fn build() -> Command {
     Command::new("ccase")
@@ -47,20 +47,22 @@ fn after_help() -> StyledStr {
 
 fn list_cases() -> String {
     let mut s = String::new();
-    for case in Case::all_cases() {
-        let case_str = format!("{:?}", case).to_case(Case::Flat);
-        let underline_case = format!("\x1b[1m{}\x1b[0m", case_str);
-        s = format!("{}{:>25}  {}\n", s, underline_case, case.name_in_case())
+    for case_opt in CaseOption::value_variants() {
+        let possible_value = case_opt.to_possible_value().unwrap();
+        let name = possible_value.get_name();
+        let underline_case = format!("\x1b[1m{}\x1b[0m", name);
+        s = format!("{}{:>25}  {}\n", s, underline_case, case_opt.name_in_case())
     }
     s
 }
 
 fn list_patterns() -> String {
     let mut s = String::new();
-    for pattern in crate::all_patterns() {
-        let pattern_str = format!("{:?}", pattern).to_case(Case::Flat);
-        let underline_pattern = format!("\x1b[1m{}\x1b[0m", pattern_str);
-        s = format!("{}{:>25}  {}\n", s, underline_pattern, pattern.example())
+    for pattern_opt in PatternOption::value_variants() {
+        let possible_value = pattern_opt.to_possible_value().unwrap();
+        let name = possible_value.get_name();
+        let underline_pattern = format!("\x1b[1m{}\x1b[0m", name);
+        s = format!("{}{:>25}  {}\n", s, underline_pattern, pattern_opt.example())
     }
     s
 }
@@ -82,7 +84,7 @@ mod args {
                 "Convert the input into this case.  \
                 The input is mutated and joined using the pattern and delimiter of the case.",
             )
-            .value_parser(case_value_parser)
+            .value_parser(EnumValueParser::<CaseOption>::new())
             .required_unless_present("pattern")
     }
 
@@ -96,7 +98,7 @@ mod args {
                 "Parse the input as if it were this case.  \
                 This means splitting the input based on boundaries found in that case.",
             )
-            .value_parser(case_value_parser)
+            .value_parser(EnumValueParser::<CaseOption>::new())
     }
 
     fn boundaries() -> Arg {
@@ -120,7 +122,7 @@ mod args {
             .help("Pattern to transform words")
             .long_help("Transform the words after splitting the input based upon the pattern.")
             .conflicts_with("to")
-            .value_parser(pattern_value_parser)
+            .value_parser(EnumValueParser::<PatternOption>::new())
     }
 
     fn delimeter() -> Arg {
