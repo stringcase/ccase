@@ -1,6 +1,6 @@
 [package]
 name = "ccase"
-version = "0.4.1"
+version = "0.5.0"
 authors = ["rutrum <dave@rutrum.net>"]
 edition = "2021"
 description = "Command line interface to convert strings into any case"
