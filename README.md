@@ -189,6 +189,12 @@ In `ccase`, the delimeter can be specified with `--delimeter` or whatever delime
 
 # Changlog
 
+## 0.5.1
+
+- Moved CLI tests to integration tests for compatibility with newer cargo/assert_cmd
+- Updated dependencies (clap, assert_cmd, etc.)
+- Fixed Nix build by updating lockfiles
+
 ## 0.5.0
 
 - Updated `convert_case` dependency to 0.11 (and add `convert_case_extras` as a result)
