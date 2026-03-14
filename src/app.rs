@@ -5,7 +5,7 @@ use clap::{crate_version, Arg, ArgAction, Command, ValueEnum};
 pub fn build() -> Command {
     Command::new("ccase")
         .version(crate_version!())
-        .about("Convert between string cases.\nhttps://github.com/rutrum/ccase")
+        .about("Convert between string cases.\nhttps://github.com/stringcase/ccase")
         .arg_required_else_help(true)
         .args(args::all())
         .override_usage(usage())
