@@ -75,9 +75,7 @@ fn delimeter() {
 fn input_required_tty() {
     // When stdin is a TTY and no input provided, should show error.
     // This can only be verified manually: `ccase -t snake`
-    ccase(&["-t", "snake"])
-        .failure()
-        .stderr(contains("input"));
+    ccase(&["-t", "snake"]).failure().stderr(contains("input"));
 }
 
 #[test]
@@ -138,6 +136,57 @@ fn multiple_inputs() {
     ccase(&["-t", "snake", "myVarName", "anotherMultiWordToken"])
         .success()
         .stdout("my_var_name\nanother_multi_word_token\n");
+}
+
+mod completion {
+    use super::*;
+
+    #[test]
+    fn generates_bash_completions() {
+        ccase(&["completion", "bash"])
+            .success()
+            .stdout(contains("_ccase"));
+    }
+
+    #[test]
+    fn generates_zsh_completions() {
+        ccase(&["completion", "zsh"])
+            .success()
+            .stdout(contains("#compdef ccase"));
+    }
+
+    #[test]
+    fn generates_fish_completions() {
+        ccase(&["completion", "fish"])
+            .success()
+            .stdout(contains("complete -c ccase"));
+    }
+
+    #[test]
+    fn generates_powershell_completions() {
+        ccase(&["completion", "powershell"])
+            .success()
+            .stdout(contains("ccase"));
+    }
+
+    #[test]
+    fn generates_elvish_completions() {
+        ccase(&["completion", "elvish"])
+            .success()
+            .stdout(contains("ccase"));
+    }
+
+    #[test]
+    fn missing_shell_arg() {
+        ccase(&["completion"]).failure().stderr(contains("<shell>"));
+    }
+
+    #[test]
+    fn invalid_shell() {
+        ccase(&["completion", "nushell"])
+            .failure()
+            .stderr(contains("invalid value"));
+    }
 }
 
 mod stdin {

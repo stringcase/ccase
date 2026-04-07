@@ -1,11 +1,22 @@
 use ccase::{CaseOption, PatternOption};
 use clap::ArgMatches;
+use clap_complete::Shell;
 use convert_case::{Boundary, Converter};
 use std::io::{self, IsTerminal, Read};
 
 fn main() {
     let app = ccase::build_app();
     let matches = app.get_matches();
+
+    if let Some(completion_matches) = matches.subcommand_matches("completion") {
+        let shell = completion_matches
+            .get_one::<Shell>("shell")
+            .copied()
+            .unwrap();
+        let mut app = ccase::build_app();
+        clap_complete::generate(shell, &mut app, "ccase", &mut io::stdout());
+        return;
+    }
 
     let inputs: Vec<String> = match matches.get_many::<String>("input") {
         Some(inputs) => inputs.cloned().collect(),
