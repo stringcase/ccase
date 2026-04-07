@@ -1,6 +1,7 @@
 use crate::{CaseOption, PatternOption};
 use clap::builder::{EnumValueParser, StyledStr};
 use clap::{crate_version, Arg, ArgAction, Command, ValueEnum};
+use clap_complete::Shell;
 
 pub fn build() -> Command {
     Command::new("ccase")
@@ -8,10 +9,30 @@ pub fn build() -> Command {
         .about("Convert between string cases.\nhttps://github.com/stringcase/ccase")
         .arg_required_else_help(true)
         .args(args::all())
+        .subcommand(completion_subcommand())
+        .subcommand_negates_reqs(true)
+        .args_conflicts_with_subcommands(true)
         .override_usage(usage())
         .max_term_width(90)
         .after_help(after_help())
         .after_long_help(after_long_help())
+}
+
+fn completion_subcommand() -> Command {
+    Command::new("completion")
+        .about("Generate shell completion scripts")
+        .long_about(
+            "Generate shell completion scripts for the specified shell.\n\
+             The output is written to stdout and can be redirected to a file \
+             or sourced directly.",
+        )
+        .display_order(900)
+        .arg(
+            Arg::new("shell")
+                .help("The shell to generate completions for")
+                .required(true)
+                .value_parser(EnumValueParser::<Shell>::new()),
+        )
 }
 
 fn usage() -> StyledStr {
@@ -62,7 +83,12 @@ fn list_patterns() -> String {
         let possible_value = pattern_opt.to_possible_value().unwrap();
         let name = possible_value.get_name();
         let underline_pattern = format!("\x1b[1m{}\x1b[0m", name);
-        s = format!("{}{:>25}  {}\n", s, underline_pattern, pattern_opt.example())
+        s = format!(
+            "{}{:>25}  {}\n",
+            s,
+            underline_pattern,
+            pattern_opt.example()
+        )
     }
     s
 }

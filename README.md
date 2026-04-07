@@ -108,6 +108,16 @@ $ ccase -p sentence -d __ my-var-name
 My__var__name
 ```
 
+### `completion <shell>`
+
+Generate shell completion scripts.  Supported shells: `bash`, `elvish`, `fish`, `powershell`, `zsh`.
+
+```sh
+$ ccase completion bash > ~/.local/share/bash-completion/completions/ccase
+$ ccase completion zsh > ~/.zfunc/_ccase
+$ ccase completion fish > ~/.config/fish/completions/ccase.fish
+```
+
 # How Case Conversion Works
 
 A _case_ can be defined as a _pattern_ joined with a _delimeter_.  Turning a list of words into a certain case happens in two steps.  First, each word is transformed by the pattern.  Then the words are joined together with the delimeter.

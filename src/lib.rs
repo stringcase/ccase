@@ -4,7 +4,10 @@ pub use app::build as build_app;
 
 use clap::ValueEnum;
 use convert_case::{Case, Casing, Pattern};
-use convert_case_extras::case::{ALTERNATING as ALTERNATING_CASE, PSEUDO_RANDOM as PSEUDO_RANDOM_CASE, RANDOM as RANDOM_CASE, TOGGLE as TOGGLE_CASE};
+use convert_case_extras::case::{
+    ALTERNATING as ALTERNATING_CASE, PSEUDO_RANDOM as PSEUDO_RANDOM_CASE, RANDOM as RANDOM_CASE,
+    TOGGLE as TOGGLE_CASE,
+};
 use convert_case_extras::pattern::{ALTERNATING, PSEUDO_RANDOM, RANDOM, TOGGLE};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
@@ -105,4 +108,3 @@ impl PatternOption {
         }
     }
 }
-
